@@ -133,8 +133,6 @@ function keyUpHandler(e) {
        ball.x +=ball.dx;
     }
 
-
-
 //if the ball is within the y-axis of the canvas, keep moving the ball
     if(ball.y + ball.radius<=canvas.height && ball.y - ball.radius >0){        
 
@@ -146,6 +144,7 @@ function keyUpHandler(e) {
 
 //moves the paddle
 // right paddle movement
+
     if(upPressed && paddleR.y < canvas.height-paddleR.h) {        
           paddleR.y += 7;
       }
