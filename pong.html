@@ -1,0 +1,220 @@
+<html>
+<head>
+    <title>Pong</title>
+</head>
+<body>
+    <canvas height=450 width=800 id=stage> </canvas>
+   
+</body>
+
+    <script>
+	function sound(src) {
+		    this.sound = document.createElement("audio");
+		    this.sound.src = src;
+		    this.sound.setAttribute("preload", "auto");
+		    this.sound.setAttribute("controls", "none");
+		    this.sound.style.display = "none";
+		    document.body.appendChild(this.sound);
+		    this.play = function(){
+		        this.sound.play();
+		    }
+		    this.stop = function(){
+		        this.sound.pause();
+		    }
+		}
+
+		mySound = new sound("tennisserve.mp3");
+
+        var canvas = document.getElementById('stage');
+        var ctx = canvas.getContext("2d");
+        var upPressed=false;
+        var downPressed=false;
+        var wPressed=false;
+        var sPressed=false;
+
+        var ball = {
+        x: 50,
+        y: 20,
+        radius: 10,
+        dx: 4,
+        dy: 4,
+        colour: "white"
+    };
+
+        var paddleL = {
+        x: 10,
+        y: 10,
+        h: 70,
+        w: 10,
+    };
+
+        var paddleR = {
+        x: canvas.width -20,
+        y: 10,
+        h: 70,
+        w: 10,
+        };
+
+        var player1Score = 0
+        var player2Score = 0
+
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);        // event listener for keys
+
+function keyDownHandler(e) {
+  if(e.keyCode == 38) {
+      downPressed = true;
+  }
+  else if(e.keyCode == 40) {
+      upPressed = true;
+
+  }                            // key down handler
+  else if(e.keyCode == 83) {
+          wPressed = true;
+  }
+  else if (e.keyCode == 87) {
+          sPressed = true;
+  }
+}
+function keyUpHandler(e) {
+  if(e.keyCode == 40) {
+      upPressed = false;
+  }
+  else if(e.keyCode == 38) {
+      downPressed = false;
+  }                            // key up handler
+
+  else if(e.keyCode == 83) {
+          wPressed = false;
+  }
+  else if (e.keyCode == 87) {
+          sPressed = false;
+  }
+}
+
+    function frame(){
+    //update state
+//if hits edge, resets ball
+    if(ball.x+ball.radius==canvas.width || ball.x - ball.radius==0){
+        if (ball.dx > 0) {
+            player1Score ++
+        }
+        else {
+            player2Score++
+        }
+
+
+        ball.x = 410;
+        ball.y = 250;
+
+        
+        console.log(player1Score)
+        console.log(player2Score)
+    }
+         else if(ball.x+ball.radius<=canvas.width && ball.x - ball.radius >0){
+             ball.x +=ball.dx;}
+
+         else {ball.dx = -ball.dx;
+               ball.x +=ball.dx;}
+         
+
+
+         
+         if(ball.y + ball.radius<=canvas.height && ball.y - ball.radius >0){        // draw ball and define collisions with walls
+             ball.y +=ball.dy;}
+             else{
+                 ball.dy = -ball.dy;
+                 ball.y +=ball.dy;}
+        
+         //
+
+        if(upPressed && paddleR.y < canvas.height-paddleR.h) {        // right paddle movement
+              paddleR.y += 7;
+          }
+          else if(downPressed && paddleR.y > 0) {
+              paddleR.y -= 7;
+          }
+
+          if(wPressed && paddleL.y < canvas.height-paddleL.h) {        // left paddle movement
+              paddleL.y += 7;
+          }
+          else if(sPressed && paddleL.y > 0) {
+              paddleL.y -= 7;
+          }
+
+          // paddle hit by ball
+
+          if (ball.x == paddleL.x + paddleL.w + ball.radius){
+
+              if (ball.y >= paddleL.y - ball.radius && ball.y <= paddleL.y + paddleL.h + ball.radius){
+              	mySound.play()
+              ball.dx = -ball.dx
+              }        
+          }
+          
+        if (ball.x == paddleR.x - ball.radius){
+
+              if (ball.y >= paddleR.y - ball.radius && ball.y <= paddleR.y + paddleR.h + ball.radius){
+              	mySound.play()
+              ball.dx = -ball.dx
+              }        
+          }
+         //
+        ctx.beginPath(); // clear screen after ball
+        ctx.fillStyle = "black"
+        ctx.rect(0,0, canvas.width, canvas.height);
+        ctx.fill();
+
+        ctx.beginPath(); // Draw ball
+        ctx.fillStyle = "lime";
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+        ctx.fill();
+        ctx.closePath();
+
+        ctx.beginPath(); // Draw left paddle
+          ctx.rect(paddleL.x, paddleL.y, paddleL.w, paddleL.h);
+          ctx.fillStyle = "white";
+          ctx.fill();
+          ctx.closePath();
+
+          ctx.beginPath(); // Draw right paddle
+          ctx.rect(paddleR.x, paddleR.y, paddleR.w, paddleR.h);
+          ctx.fillStyle = "white";
+          ctx.fill();
+          ctx.closePath();
+
+
+          // score
+
+		ctx.font = "30px Arial";
+		ctx.fillText(player1Score,350,50);
+		ctx.fillText(player2Score,450,50);
+
+if(player1Score >=3 || player2Score >=3){
+		ball.dx = 0;
+		ctx.beginPath(); // clear screen after ball
+        ctx.fillStyle = "black"
+        ctx.rect(0,0, canvas.width, canvas.height);
+        ctx.fill();
+
+        ctx.font = "30px Arial";
+        ctx.fillStyle = "white";
+        if(player1Score>=3){
+        	ctx.fillText("Player 1 wins!",300,50);
+        } else {
+        	ctx.fillText("Player 2 wins!",300,50);
+        }
+
+}
+
+
+        requestAnimationFrame(frame)
+
+}
+
+    frame(0)
+
+    </script>
+
+
+</html>
