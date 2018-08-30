@@ -4,63 +4,78 @@
 </head>
 <body>
     <canvas height=450 width=800 id=stage> </canvas>
-   
+   <p>Player one controls (left paddle):</p>
+   <p>'W' = paddle up, 'S' = paddle down</p>
+   <br>
+    <p>Player two controls (right paddle):</p> 
+   <p>'Up arrow' = paddle up, 'Down arrow' = paddle down</p>
 </body>
 
-    <script>
-	function sound(src) {
-		    this.sound = document.createElement("audio");
-		    this.sound.src = src;
-		    this.sound.setAttribute("preload", "auto");
-		    this.sound.setAttribute("controls", "none");
-		    this.sound.style.display = "none";
-		    document.body.appendChild(this.sound);
-		    this.play = function(){
-		        this.sound.play();
-		    }
-		    this.stop = function(){
-		        this.sound.pause();
-		    }
-		}
+<script>
+	
+//function to be able to play sound
+  function sound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function(){
+        this.sound.play();
+    }
+    this.stop = function(){
+        this.sound.pause();
+    }
+	}
+//sets sounds = to sound effect chosen
+	mySound = new sound("tennisserve.mp3");
 
-		mySound = new sound("tennisserve.mp3");
+//sets canvas
+  var canvas = document.getElementById('stage');
+  var ctx = canvas.getContext("2d");
+  
 
-        var canvas = document.getElementById('stage');
-        var ctx = canvas.getContext("2d");
-        var upPressed=false;
-        var downPressed=false;
-        var wPressed=false;
-        var sPressed=false;
+//defines parameters for the ball. dx/dy = changes in direction for ball
+  var ball = {
+    x: 50,
+    y: 20,
+    radius: 10,
+    dx: 4,
+    dy: 4,
+    colour: "white"
+  };
 
-        var ball = {
-        x: 50,
-        y: 20,
-        radius: 10,
-        dx: 4,
-        dy: 4,
-        colour: "white"
-    };
+//defines left paddle
+  var paddleL = {
+    x: 10,
+    y: 10,
+    h: 70,
+    w: 10,
+  };
+//defines right paddle (refactor!)
+  var paddleR = {
+    x: canvas.width -20,
+    y: 10,
+    h: 70,
+    w: 10,
+  };
 
-        var paddleL = {
-        x: 10,
-        y: 10,
-        h: 70,
-        w: 10,
-    };
+//sets up player scores
+  var player1Score = 0
+  var player2Score = 0
 
-        var paddleR = {
-        x: canvas.width -20,
-        y: 10,
-        h: 70,
-        w: 10,
-        };
+//defines the state of when a key as been pressed down or released - set same code for w/s  
+  var upPressed=false;
+  var downPressed=false;
+  var wPressed=false;
+  var sPressed=false;
 
-        var player1Score = 0
-        var player2Score = 0
+//listens out for when a key has been pressed/released
+  document.addEventListener("keydown", keyDownHandler, false);
+  document.addEventListener("keyup", keyUpHandler, false);        // event listener for keys
 
-document.addEventListener("keydown", keyDownHandler, false);
-document.addEventListener("keyup", keyUpHandler, false);        // event listener for keys
-
+//changes state for when a key is pressed
 function keyDownHandler(e) {
   if(e.keyCode == 38) {
       downPressed = true;
@@ -68,7 +83,7 @@ function keyDownHandler(e) {
   else if(e.keyCode == 40) {
       upPressed = true;
 
-  }                            // key down handler
+  }
   else if(e.keyCode == 83) {
           wPressed = true;
   }
@@ -76,6 +91,8 @@ function keyDownHandler(e) {
           sPressed = true;
   }
 }
+
+//changes state for when a key is released
 function keyUpHandler(e) {
   if(e.keyCode == 40) {
       upPressed = false;
@@ -92,129 +109,150 @@ function keyUpHandler(e) {
   }
 }
 
-    function frame(){
-    //update state
-//if hits edge, resets ball
-    if(ball.x+ball.radius==canvas.width || ball.x - ball.radius==0){
-        if (ball.dx > 0) {
-            player1Score ++
-        }
-        else {
-            player2Score++
-        }
+//sets up our canvas/functionality
+  function frame(){
 
-
-        ball.x = 410;
-        ball.y = 250;
-
-        
-        console.log(player1Score)
-        console.log(player2Score)
+//if hits edge (ie: out of bounds) updates player scores, resets ball position
+  if(ball.x+ball.radius==canvas.width || ball.x - ball.radius==0){
+    
+    if (ball.dx > 0) {
+        player1Score ++
     }
-         else if(ball.x+ball.radius<=canvas.width && ball.x - ball.radius >0){
-             ball.x +=ball.dx;}
 
-         else {ball.dx = -ball.dx;
-               ball.x +=ball.dx;}
-         
+    else {
+        player2Score++
+    }
+
+//ball position reset
+    ball.x = 410;
+    ball.y = 250;
+  
+  }
+//otherwise, if the ball is in the x-axis of the canvas, keepp moving the ball   
+   else if(ball.x+ball.radius<=canvas.width && ball.x - ball.radius >0){
+       ball.x +=ball.dx;
+    }
 
 
-         
-         if(ball.y + ball.radius<=canvas.height && ball.y - ball.radius >0){        // draw ball and define collisions with walls
-             ball.y +=ball.dy;}
-             else{
-                 ball.dy = -ball.dy;
-                 ball.y +=ball.dy;}
-        
-         //
 
-        if(upPressed && paddleR.y < canvas.height-paddleR.h) {        // right paddle movement
-              paddleR.y += 7;
-          }
-          else if(downPressed && paddleR.y > 0) {
-              paddleR.y -= 7;
-          }
+//if the ball is within the y-axis of the canvas, keep moving the ball
+    if(ball.y + ball.radius<=canvas.height && ball.y - ball.radius >0){        
 
-          if(wPressed && paddleL.y < canvas.height-paddleL.h) {        // left paddle movement
-              paddleL.y += 7;
-          }
-          else if(sPressed && paddleL.y > 0) {
-              paddleL.y -= 7;
-          }
+       ball.y +=ball.dy;}
+//otherwise, we've hit the top and need to deflect       
+     else{
+         ball.dy = -ball.dy;
+         ball.y +=ball.dy;}
 
-          // paddle hit by ball
+//moves the paddle
+// right paddle movement
+    if(upPressed && paddleR.y < canvas.height-paddleR.h) {        
+          paddleR.y += 7;
+      }
+      else if(downPressed && paddleR.y > 0) {
+          paddleR.y -= 7;
+      }
 
-          if (ball.x == paddleL.x + paddleL.w + ball.radius){
+// left paddle movement
+      if(wPressed && paddleL.y < canvas.height-paddleL.h) {        
+          paddleL.y += 7;
+      }
+      else if(sPressed && paddleL.y > 0) {
+          paddleL.y -= 7;
+      }
 
-              if (ball.y >= paddleL.y - ball.radius && ball.y <= paddleL.y + paddleL.h + ball.radius){
-              	mySound.play()
-              ball.dx = -ball.dx
+      
+      // paddle hit by ball
+      //compares x -axis first
+      //need to include ball radius in the area of the paddle, as this will allow for when the ball it's an edge of the paddle
+      if (ball.x == paddleL.x + paddleL.w + ball.radius){
+            
+        //if at the x-axis intersect our ball is within the paddle area (ie it hits a paddle), play sound, return ball
+        //left paddle
+      
+          if (ball.y >= paddleL.y - ball.radius && ball.y <= paddleL.y + paddleL.h + ball.radius){
+          	mySound.play()
+          ball.dx = -ball.dx
+          }        
+      }
+        //right paddle
+      if (ball.x == paddleR.x - ball.radius){
+
+          if (ball.y >= paddleR.y - ball.radius && ball.y <= paddleR.y + paddleR.h + ball.radius){
+          	mySound.play()
+          ball.dx = -ball.dx
+
               }        
-          }
-          
-        if (ball.x == paddleR.x - ball.radius){
-
-              if (ball.y >= paddleR.y - ball.radius && ball.y <= paddleR.y + paddleR.h + ball.radius){
-              	mySound.play()
-              ball.dx = -ball.dx
-              }        
-          }
-         //
-        ctx.beginPath(); // clear screen after ball
-        ctx.fillStyle = "black"
-        ctx.rect(0,0, canvas.width, canvas.height);
-        ctx.fill();
-
-        ctx.beginPath(); // Draw ball
-        ctx.fillStyle = "lime";
-        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
-        ctx.fill();
-        ctx.closePath();
-
-        ctx.beginPath(); // Draw left paddle
-          ctx.rect(paddleL.x, paddleL.y, paddleL.w, paddleL.h);
-          ctx.fillStyle = "white";
-          ctx.fill();
-          ctx.closePath();
-
-          ctx.beginPath(); // Draw right paddle
-          ctx.rect(paddleR.x, paddleR.y, paddleR.w, paddleR.h);
-          ctx.fillStyle = "white";
-          ctx.fill();
-          ctx.closePath();
+      }
 
 
-          // score
+//drawing the background
+      ctx.beginPath(); 
+      ctx.fillStyle = "black"
+      ctx.rect(0,0, canvas.width, canvas.height);
+      ctx.fill();
+
+//drawing the ball
+      ctx.beginPath(); 
+      ctx.fillStyle = "lime";
+      ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+      ctx.fill();
+      ctx.closePath();
+
+//drawing the paddles
+      ctx.beginPath(); 
+      ctx.rect(paddleL.x, paddleL.y, paddleL.w, paddleL.h);
+      ctx.fillStyle = "white";
+      ctx.fill();
+      ctx.closePath();
+
+      ctx.beginPath(); 
+      ctx.rect(paddleR.x, paddleR.y, paddleR.w, paddleR.h);
+      ctx.fillStyle = "white";
+      ctx.fill();
+      ctx.closePath();
+
+
+//showing the player score at the top
 
 		ctx.font = "30px Arial";
 		ctx.fillText(player1Score,350,50);
 		ctx.fillText(player2Score,450,50);
 
+//end of game test 
 if(player1Score >=3 || player2Score >=3){
-		ball.dx = 0;
-		ctx.beginPath(); // clear screen after ball
-        ctx.fillStyle = "black"
-        ctx.rect(0,0, canvas.width, canvas.height);
-        ctx.fill();
+		
+    //stops the ball from moving
+    ball.dx = 0;
+    
+//draws a background over the game
+    ctx.beginPath(); 
+    ctx.fillStyle = "black"
+    ctx.rect(0,0, canvas.width, canvas.height);
+    ctx.fill();
 
-        ctx.font = "30px Arial";
-        ctx.fillStyle = "white";
-        if(player1Score>=3){
-        	ctx.fillText("Player 1 wins!",300,50);
-        } else {
-        	ctx.fillText("Player 2 wins!",300,50);
-        }
+//winners message
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "white";
+    if(player1Score>=3){
+    	ctx.fillText("Player 1 wins!",300,50);
+    } else {
+    	ctx.fillText("Player 2 wins!",300,50);
+    }
+
+    ctx.fillText("Preparing to restart...",260,100);      
+
+//reloads game in 3 seconds
+    setTimeout(function(){document.location.reload()},3000)
+  }
+
+  requestAnimationFrame(frame)
 
 }
 
+  frame(0)
 
-        requestAnimationFrame(frame)
-
-}
-
-    frame(0)
-
-    </script>
+</script>
 
 
 </html>
